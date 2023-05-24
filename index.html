@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <center>
+  <title>Task Manager</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .completed {
+      text-decoration: line-through;
+    }
+  </style>
+    </center>
+</head>
+<body>
+  <br>
+
+    <center>
+  <h1>Task Manager</h1>
+  <br>
+  <h4 for="darkModeToggle" class="toggle-label">Toggle Dark Mode</h4>
+  <label class="switch">
+    <input type="checkbox" id="darkModeToggle">
+    <span class="slider"></span>
+  </label><br>
+  
+  
+  <form id="taskForm">
+    <input type="text" id="taskInput" placeholder="Enter task">
+    <button padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer; type="submit">Add Task</button>
+  </form>
+
+  <ul id="taskList"></ul>
+
+  <script>
+
+    // script.js
+// script.js
+document.addEventListener("DOMContentLoaded", function() {
+  const darkModeToggle = document.getElementById("darkModeToggle");
+  const body = document.body;
+
+  // Check if dark mode is enabled in local storage
+  const isDarkMode = localStorage.getItem("darkMode") === "true";
+
+  // Set initial mode based on local storage
+  setDarkMode(isDarkMode);
+
+  // Toggle dark mode when switch is clicked
+  darkModeToggle.addEventListener("change", function() {
+    const newMode = darkModeToggle.checked;
+    setDarkMode(newMode);
+    localStorage.setItem("darkMode", newMode);
+  });
+
+  // Function to set dark mode styles
+  function setDarkMode(isDarkMode) {
+    if (isDarkMode) {
+      body.classList.add("dark-mode");
+    } else {
+      body.classList.remove("dark-mode");
+    }
+  }
+});
+
+
+    // Retrieve tasks from local storage (if any)
+    var tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    // Render existing tasks on page load
+    renderTasks();
+
+    // Add event listener to form submission
+    document.getElementById("taskForm").addEventListener("submit", function(event) {
+      event.preventDefault(); // Prevent form submission
+
+      // Get task input value
+      var taskInput = document.getElementById("taskInput");
+      var task = taskInput.value;
+
+      if (task.trim() !== "") {
+        // Create a new task object
+        var newTask = {
+          id: Date.now(),
+          name: task,
+          completed: false
+        };
+
+        // Add the task to the tasks array
+        tasks.push(newTask);
+
+        // Clear the task input field
+        taskInput.value = "";
+
+        // Save tasks to local storage
+        saveTasks();
+
+        // Render the updated tasks
+        renderTasks();
+      }
+    });
+
+    // Function to render tasks
+    function renderTasks() {
+      var taskList = document.getElementById("taskList");
+      taskList.innerHTML = ""; // Clear the task list
+
+      // Loop through tasks array and create task elements
+      for (var i = 0; i < tasks.length; i++) {
+        var taskItem = document.createElement("li");
+        taskItem.dataset.taskId = tasks[i].id;
+        taskItem.innerText = tasks[i].name;
+
+        // Apply completed class if task is completed
+        if (tasks[i].completed) {
+          taskItem.classList.add("completed");
+        }
+
+        // Create delete button for each task
+        var deleteButton = document.createElement("button");
+        deleteButton.innerText = "Delete";
+        deleteButton.dataset.taskId = tasks[i].id;
+        deleteButton.addEventListener("click", deleteTask);
+
+        // Create checkbox for each task
+        var checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = tasks[i].completed;
+        checkbox.dataset.taskId = tasks[i].id;
+        checkbox.addEventListener("change", toggleTaskCompletion);
+
+        // Append delete button and checkbox to task item
+        taskItem.appendChild(deleteButton);
+        taskItem.appendChild(checkbox);
+
+        // Append task item to task list
+        taskList.appendChild(taskItem);
+      }
+    }
+
+    // Function to toggle task completion
+    function toggleTaskCompletion(event) {
+      var taskId = event.target.dataset.taskId;
+
+      // Find the task in the tasks array
+      var task = tasks.find(function(item) {
+        return item.id == taskId;
+      });
+
+      // Update the task completion status
+      task.completed = !task.completed;
+
+      // Save tasks to local storage
+      saveTasks();
+
+      // Render the updated tasks
+      renderTasks();
+    }
+
+    // Function to delete a task
+    function deleteTask(event) {
+      var taskId = event.target.dataset.taskId;
+
+      // Remove the task from the tasks array
+      tasks = tasks.filter(function(item) {
+        return item.id != taskId;
+      });
+
+      // Save tasks to local storage
+      saveTasks();
+
+      // Render the updated tasks
+      renderTasks();
+    }
+
+    // Function to save tasks to local storage
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+  </script>
+  </center>
+</body>
+</html>
